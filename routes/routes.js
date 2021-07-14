@@ -12,5 +12,6 @@ router.get('/', async (req, res) => {
 router.get('/users', UserController.findAllUsers);
 router.get('/users/:key', UserController.findUser);
 router.delete('/users/:id', UserController.deleteUser);
+router.post('/users', UserController.createUser);
 
 module.exports = router;

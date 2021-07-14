@@ -58,6 +58,28 @@ class User {
 
     };
 
+    async create(user) {
+
+        try {
+
+            const { name, email, password, role } = user;
+            
+            const newUser = await database.insert({
+                name: name,
+                email: email,
+                password: password,
+                role: role
+            }).into(Constants.USER_TABLE);
+
+            return newUser;
+
+        } catch (error) {
+            //TODO: handle error
+            return undefined;
+        }
+
+    };
+
     async delete(id) {
 
         try {
@@ -68,7 +90,6 @@ class User {
         } catch (error) {
 
             //TODO: handle error
-
             return false;
         };
 

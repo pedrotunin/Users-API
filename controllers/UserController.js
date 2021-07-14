@@ -1,5 +1,6 @@
 const Message = require('../helpers/Message');
 const User = require('../models/User');
+const Validate = require('../helpers/Validate');
 
 const validator = require('validator');
 
@@ -75,6 +76,44 @@ class UserController {
             return;
 
         }
+
+    };
+
+    async createUser(req, res, next) {
+
+        const { name, email, password, role } = req.body;
+
+        if (email != undefined && await User.findByEmail(email)) {
+            res.status(409);
+            res.json(Message.error("The e-mail already exists in our database!"));
+            return;
+        }
+
+        const errors = Validate.validateNewUser(req.body);
+
+        if (errors.length > 0) {
+            res.status(400);
+            res.json(Message.error("Some errors occurred!", errors));
+            return;
+        } 
+
+        const newUser = await User.create(req.body);
+
+        if (newUser == undefined) {
+            res.status(500);
+            res.json(Message.error("An internal error occurred!"));
+            return;
+        }
+
+        const data = {
+            user: {
+                id: newUser[0]
+            }
+        };
+
+        res.status(201);
+        res.json(Message.success(data, "User created!"))
+        return;
 
     };
 

@@ -1,10 +1,11 @@
 class Message {
 
-    error(message) {
+    error(message, errors = undefined) {
 
         const obj = {
             status: 'Error',
-            message: message
+            message: message,
+            errors: errors
         };
 
         return obj;
