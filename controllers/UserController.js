@@ -1,8 +1,13 @@
+require('dotenv').config();
+
 const Message = require('../helpers/Message');
 const User = require('../models/User');
 const Validate = require('../helpers/Validate');
 
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
+
+const salt = parseInt(process.env.SALT_ROUNDS);
 
 async function handleFindById(req, res, id) {
 
@@ -97,7 +102,16 @@ class UserController {
             return;
         } 
 
-        const newUser = await User.create(req.body);
+        const hash = bcrypt.hashSync(password, salt);
+
+        const user = {
+            name,
+            email,
+            password: hash,
+            role
+        };
+
+        const newUser = await User.create(user);
 
         if (newUser == undefined) {
             res.status(500);
