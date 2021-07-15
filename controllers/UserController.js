@@ -3,11 +3,14 @@ require('dotenv').config();
 const Message = require('../helpers/Message');
 const User = require('../models/User');
 const Validate = require('../helpers/Validate');
+const Constants = require('../helpers/Constants');
 
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-const salt = parseInt(process.env.SALT_ROUNDS);
+const salt = parseInt(process.env.BCRYPT_SALT_ROUNDS);
+const secret = process.env.JWT_SECRET;
 
 async function handleFindById(req, res, id) {
 
@@ -214,6 +217,46 @@ class UserController {
         res.json(Message.success(undefined, "User updated"));
 
     }
+
+    async login(req, res, next) {
+
+        const { email, password } = req.body;
+
+        const errors = await Validate.validateLogin(email, password);
+
+        if (errors.length > 0) {
+            res.status(400);
+            res.json(Message.error("Some errors occurred!", errors));
+            return;
+        }
+
+        const user = await User.findByEmailWithPassword(email);
+
+        if (user == undefined) {
+            res.status(406);
+            res.json(Message.error("E-mail or password incorrect!"));
+            return;
+        }
+
+        const comparePasswords = await bcrypt.compare(password, user.password);
+
+        if (!comparePasswords) {
+            res.status(406);
+            res.json(Message.error("E-mail or password incorrect!"));
+            return;
+        }
+
+        const token = jwt.sign({
+            id: user.user_id, 
+            email: user.email, 
+            role: user.role 
+        }, secret, { expiresIn: `${ Constants.TOKEN_MAX_AGE }ms` });
+
+        res.status(200);
+        res.json(Message.success({ token: token }, "Successfully logged!"));
+
+    }
+
 };
 
 module.exports = new UserController();

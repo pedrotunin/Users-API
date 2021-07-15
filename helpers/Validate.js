@@ -127,6 +127,17 @@ class Validate {
 
     }
 
+    validateLogin(email, password) {
+
+        var errors = [];
+
+        this.#validateEmail(email, errors);
+        this.#validatePassword(password, errors);
+
+        return errors;
+
+    }
+
 };
 
 module.exports = new Validate();

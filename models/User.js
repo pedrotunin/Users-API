@@ -66,6 +66,24 @@ class User {
 
     }
 
+    async findByEmailWithPassword(email) {
+
+        try {
+            
+            const fields = ['user_id', 'name', 'email', 'password', 'role'];
+            const user = await database.select(fields).from(Constants.USER_TABLE).where( { email: email } );
+
+            if (user == undefined || user == null || user.length == 0)
+                return undefined;
+
+            return user[0];
+
+        } catch (error) {
+            //TODO: handle error
+        };
+
+    }
+
     async create(user) {
 
         try {
