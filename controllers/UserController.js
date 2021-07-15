@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const Message = require('../helpers/Message');
 const User = require('../models/User');
+const PasswordToken = require('../models/PasswordToken');
 const Validate = require('../helpers/Validate');
 const Constants = require('../helpers/Constants');
 
@@ -254,6 +255,74 @@ class UserController {
 
         res.status(200);
         res.json(Message.success({ token: token }, "Successfully logged!"));
+
+    }
+
+    async recoverPassword(req, res, next) {
+
+        const { email } = req.body;
+        var errors = [];
+
+        if (User.findByEmail(email) == undefined) {
+            res.status(400);
+            res.json(Message.error("The e-mais does not exists in our database!"));
+            return;
+        }
+
+        Validate.validateEmail(email, errors);
+        if (errors.length > 0) {
+            res.status(400);
+            res.json(Message.error("Some errors occurred!", errors));
+            return;
+        }
+
+        const token = await PasswordToken.create(email);
+
+        if (token == undefined) {
+            res.status(500);
+            res.json(Message.error("An internal error occurred!"));
+            return;
+        }
+
+        res.status(200);
+        res.json(Message.success({ recovery_token: token }, `Recovery token created! It expires in ${Constants.PASSWORD_TOKEN_MAX_AGE / 60} minutes.`))
+
+    }
+
+    async changePassword(req, res, next) {
+
+        const { token, password } = req.body;
+        var errors = [];
+
+        Validate.validatePassword(password, errors);
+        if (errors.length > 0) {
+            res.status(400);
+            res.json(Message.error("Some errors occurred!", errors));
+            return;
+        }
+
+        const validToken = await PasswordToken.validate(token);
+
+        if (validToken == undefined) {
+            res.status(404);
+            res.json(Message.error("Invalid token!"));
+            return;
+        }
+
+        const user = await User.findById(validToken.user_id);
+        const hash = bcrypt.hashSync(password, salt);
+        const result = await User.updatePassword(user.user_id, hash);
+
+        if (!result) {
+            res.status(500);
+            res.json(Message.error("An internal error occurred!"));
+            return;
+        }
+
+        await PasswordToken.setUsed(token);
+
+        res.status(200);
+        res.json(Message.success("Password updated successfully!"));
 
     }
 

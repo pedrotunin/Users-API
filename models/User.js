@@ -88,12 +88,12 @@ class User {
 
         try {
 
-            const { name, email, password, role } = user;
+            const { name, email, hash, role } = user;
             
             const newUser = await database.insert({
                 name: name,
                 email: email,
-                password: password,
+                password: hash,
                 role: role
             }).into(Constants.USER_TABLE);
 
@@ -143,7 +143,20 @@ class User {
 
     }
 
-    async updatePassword(user_id, newPassword) {
+    async updatePassword(user_id, newHash) {
+
+        try {
+
+            await database.update({
+                password: newHash
+            }).where({ user_id: user_id }).from(Constants.USER_TABLE);
+
+            return true;
+            
+        } catch (error) {
+            //TODO: handle error
+            return false;
+        }
 
     };
 

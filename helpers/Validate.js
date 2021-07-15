@@ -41,7 +41,7 @@ class Validate {
 
     }
 
-    #validateEmail(email, errors) {
+    validateEmail(email, errors) {
 
         var message = '';
         if (email == undefined) {
@@ -56,7 +56,7 @@ class Validate {
 
     }
     
-    #validatePassword(password, errors) {
+    validatePassword(password, errors) {
     
         var error = undefined;
 
@@ -107,8 +107,8 @@ class Validate {
         var errors = [];
 
         this.#validateName(name, errors);
-        this.#validateEmail(email, errors);
-        this.#validatePassword(password, errors);
+        this.validateEmail(email, errors);
+        this.validatePassword(password, errors);
         this.#validateRole(role, errors); 
 
         return errors;
@@ -120,7 +120,7 @@ class Validate {
         const { name, email } = user;
         var errors = [];
 
-        if (!name) this.#validateEmail(email, errors);
+        if (!name) this.validateEmail(email, errors);
         if (!email) this.#validateName(name, errors);
         
         return errors;
@@ -131,8 +131,8 @@ class Validate {
 
         var errors = [];
 
-        this.#validateEmail(email, errors);
-        this.#validatePassword(password, errors);
+        this.validateEmail(email, errors);
+        this.validatePassword(password, errors);
 
         return errors;
 
