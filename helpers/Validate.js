@@ -1,6 +1,6 @@
 const validator = require('validator');
 
-const Constants = require('../models/Constants');
+const Constants = require('./Constants');
 
 class Error {
 
@@ -24,43 +24,61 @@ class Error {
 
 class Validate {
 
-    validatePassword(password) {
-    
-        if (password == undefined || password.length == 0) {
-            return new Error("password", "No password was given.")
+    #validateName(name, errors) {
+
+        var message = '';
+
+        if (name == undefined) {
+            message = 'No name was given!';
+            errors.push(new Error("name", message));
+            return;
         }
 
-        if (password.length < 6) {
-            return new Error("password", "Passwords must be at least 6 characters long.")
-        }
-
-    };
-
-    validateRoleRange(role) {
-        if (role < Constants.MIN_ROLE || role > Constants.MAX_ROLE) 
-            return false;
-        return true;
-    };
-
-    validateNewUser(user) {
-        const { name, email, password, role } = user;
-        var errors = [];
-        var message = ''; 
-
-        if (name == undefined || name.length < 3) {
-            message = 'The given name is invalid!'
+        if (name.length < 3) {
+            message = 'The given name is invalid!';
             errors.push(new Error("name", message));
         }
 
-        if (!validator.isEmail(email)) {
+    }
+
+    #validateEmail(email, errors) {
+
+        var message = '';
+        if (email == undefined) {
+            message = 'No e-mail was given!';
+            errors.push(new Error("name", message));
+            return;
+        }
+        if (email == undefined || !validator.isEmail(email)) {
             message = 'The given e-mail is invalid!';
             errors.push(new Error("email", message));
         }
 
-        const validatePassword = this.validatePassword(password);
+    }
+    
+    #validatePassword(password, errors) {
+    
+        var error = undefined;
 
-        if (validatePassword != undefined) {
-            errors.push(new Error(validatePassword.getField(), validatePassword.getMessage()));
+        if (password == undefined)
+            error = new Error("password", "No password was given!")
+
+        if (password != undefined && password.length < 6)
+            error = new Error("password", "Password must be at least 6 characters long.")
+
+        if (error != undefined) 
+            errors.push(error);
+
+    }
+
+    #validateRole(role, errors) {
+        
+        var message = '';
+
+        if (role == undefined) {
+            message = 'No role was given!';
+            errors.push(new Error("role", message));
+            return;
         }
 
         if (!validator.isInt(String(role))) {
@@ -68,12 +86,45 @@ class Validate {
             errors.push(new Error("role", message));
         }
 
-        if (validator.isInt(String(role)) && !this.validateRoleRange(parseInt(String(role)))) {
+        if (validator.isInt(String(role)) && !this.#validateRoleRange(parseInt(String(role)))) {
             message = 'The given role is not valid.';
             errors.push(new Error("role", message));
         }
 
+    }
+
+    #validateRoleRange(role) {
+
+        if (role < Constants.MIN_ROLE || role > Constants.MAX_ROLE) 
+            return false;
+        return true;
+
+    }
+
+    validateNewUser(user) {
+
+        const { name, email, password, role } = user;
+        var errors = [];
+
+        this.#validateName(name, errors);
+        this.#validateEmail(email, errors);
+        this.#validatePassword(password, errors);
+        this.#validateRole(role, errors); 
+
         return errors;
+
+    }
+
+    validateUpdateUser(user) {
+
+        const { name, email } = user;
+        var errors = [];
+
+        if (!name) this.#validateEmail(email, errors);
+        if (!email) this.#validateName(name, errors);
+        
+        return errors;
+
     }
 
 };

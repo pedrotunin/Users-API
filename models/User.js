@@ -1,7 +1,15 @@
+const { text } = require('body-parser');
 const database = require('../database/config');
 
-const Constants = require('./Constants');
+const Constants = require('../helpers/Constants');
 
+function buildFields(user) {
+    var res = '';
+    for (const field in user)
+        if (user[field] != undefined) 
+            res += `${field} = "${user[field]}",`;
+    return res.slice(0, -1);
+}
 class User {
 
     async findAll() {
@@ -20,7 +28,7 @@ class User {
             //TODO: handle error
         };
 
-    };
+    }
 
     async findById(id) {
 
@@ -38,7 +46,7 @@ class User {
             //TODO: handle error
         };
 
-    };
+    }
 
     async findByEmail(email) {
 
@@ -56,7 +64,7 @@ class User {
             //TODO: handle error
         };
 
-    };
+    }
 
     async create(user) {
 
@@ -78,7 +86,7 @@ class User {
             return undefined;
         }
 
-    };
+    }
 
     async delete(id) {
 
@@ -94,6 +102,36 @@ class User {
         };
 
     }
+
+    async update(user) {
+
+        try {
+
+            const { user_id } = user;
+            delete user.user_id;
+            const query = `UPDATE ${ Constants.USER_TABLE } SET ${ buildFields(user) } WHERE user_id = ${ user_id };`;
+
+            console.log(query);
+
+            await database.raw(query);
+
+            return true;
+
+        } catch (error) {
+
+            //TODO: handle error
+            return false;
+        }
+
+    }
+
+    async updatePassword(user_id, newPassword) {
+
+    };
+
+    async updateRole(user_id, newRole) {
+
+    };
 
 };
 

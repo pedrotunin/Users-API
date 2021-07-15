@@ -154,17 +154,64 @@ class UserController {
         const result = await User.delete(id);
 
         if (!result) { // An error during deletion
-
             res.status(500);
             res.json(Message.error("An internal error has occurred!"));
             return;
-
         }
 
         // Success
         res.status(200);
         res.json(Message.success(undefined, "User deleted!"));
         return;
+
+    }
+
+    async updateUser(req, res, next) {
+
+        const id = req.params.id;
+
+        const { name, email, password, role } = req.body;
+
+        if (email != undefined) {
+            const foundUser = await User.findByEmail(email);
+            
+            if (foundUser != undefined && foundUser.user_id != id) {
+                res.status(409);
+                res.json(Message.error("The e-mail already exists in our database!"));
+                return;
+            }
+        }
+
+        if (password != undefined || role != undefined) {
+            res.status(403);
+            res.json(Message.error("You cannot update password or role here!"));
+            return;
+        }
+
+        const errors = Validate.validateUpdateUser(req.body);
+
+        if (errors.length > 0) {
+            res.status(400);
+            res.json(Message.error("Some errors occurred!", errors));
+            return;
+        }
+
+        const user = {
+            user_id: id,
+            name, 
+            email
+        };
+
+        const result = await User.update(user);
+
+        if (!result) {
+            res.status(500);
+            res.json(Message.error("An internal error occurred!"));
+            return;
+        }
+
+        res.status(200);
+        res.json(Message.success(undefined, "User updated"));
 
     }
 };
