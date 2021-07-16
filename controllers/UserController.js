@@ -68,20 +68,16 @@ class UserController {
 
     async findUser(req, res, next) {
 
-        const key = req.params.key;
+        const id = req.params.id;
 
-        if (validator.isInt(key)) { // Number
+        if (validator.isInt(id)) { // Number
 
-            await handleFindById(req, res, key);
-            
-        } else if (validator.isEmail(key)) { // E-mail
-
-            await handleFindByEmail(req, res, key);
+            await handleFindById(req, res, id);
 
         } else { // None
 
             res.status(400);
-            res.json(Message.error("The key is neither a number nor a valid email!"))
+            res.json(Message.error("The key is not a number!"))
             return;
 
         }
@@ -90,7 +86,11 @@ class UserController {
 
     async createUser(req, res, next) {
 
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
+
+        const role = Constants.STANDARD_ROLE;
+
+        req.body.role = role;
 
         if (email != undefined && await User.findByEmail(email)) {
             res.status(409);

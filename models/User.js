@@ -88,12 +88,12 @@ class User {
 
         try {
 
-            const { name, email, hash, role } = user;
+            const { name, email, password, role } = user;
             
             const newUser = await database.insert({
                 name: name,
                 email: email,
-                password: hash,
+                password: password,
                 role: role
             }).into(Constants.USER_TABLE);
 

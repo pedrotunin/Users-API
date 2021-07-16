@@ -6,6 +6,9 @@ class Constants {
     MIN_ROLE = 0;
     MAX_ROLE = 3;
 
+    ADMIN_ROLE = 0;
+    STANDARD_ROLE = 1;
+
     // In miliseconds
     TOKEN_MAX_AGE = 1000 * 60 * 10;
 
