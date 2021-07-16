@@ -1,19 +1,23 @@
 class Constants {
 
-    USER_TABLE = 'users';
-    PASSWORD_TOKEN_TABLE = 'password_tokens';
+    constructor() {
 
-    MIN_ROLE = 0;
-    MAX_ROLE = 3;
+        this.USER_TABLE = 'users';
+        this.PASSWORD_TOKEN_TABLE = 'password_tokens';
 
-    ADMIN_ROLE = 0;
-    STANDARD_ROLE = 1;
+        this.MIN_ROLE = 0;
+        this.MAX_ROLE = 3;
 
-    // In miliseconds
-    TOKEN_MAX_AGE = 1000 * 60 * 10;
+        this.ADMIN_ROLE = 0;
+        this.STANDARD_ROLE = 1;
 
-    // In seconds
-    PASSWORD_TOKEN_MAX_AGE = 60 * 10
+        // In miliseconds
+        this.TOKEN_MAX_AGE = 1000 * 60 * 10;
+
+        // In seconds
+        this.PASSWORD_TOKEN_MAX_AGE = 60 * 10;
+
+    }
 
 }
 
