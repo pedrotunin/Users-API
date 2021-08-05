@@ -115,7 +115,7 @@ class UserController {
             role
         };
 
-        const newUser = await User.create(user);
+        var newUser = await User.create(user);
 
         if (newUser == undefined) {
             res.status(500);
@@ -123,10 +123,10 @@ class UserController {
             return;
         }
 
+        newUser = await User.findByEmail(email)
+
         const data = {
-            user: {
-                id: newUser[0]
-            }
+            user: newUser
         };
 
         res.status(201);
